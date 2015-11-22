@@ -794,7 +794,8 @@ netease.getLyric = function(song){
 	var url = netease.domain+"/api/song/media?id="+id+"&version=0";
 	url +="&csrf_token="+netease.lckey;
 	$.getJSON(url,function(result){
-		if(result.code==200&&!result.nolyric){
+		if(result.code==200&&result.lyric!==undefined){
+			// console.log(result.lyric);
 			var lrc = result.lyric.split('\n');
 			
 			var filter = /^((?:\[[\d.:]+?\])+?)([^\[\]]*)$/;
