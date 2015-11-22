@@ -36,7 +36,7 @@ header .title h2{font-size: 12px;}
 .player i{position: absolute;top: 4px;right: 10px;font-size: 11px; font-style: normal; color: #999;}
 h5{height: 40px; padding: 2px 10px; width: 300px;overflow: hidden;}
 footer{background: #383E4D; height: 21px; width: 320px; position: absolute; z-index: 5; top: 0; cursor: pointer;}
-footer:hover{background: #7B7F8B;;}
+footer:hover{background: #7B7F8B;}
 .wrap{height: 306px; width: 320px;overflow: hidden; position: relative;word-wrap: break-word;
 word-break: normal;}
 .body{display: block; width: 320px; position: absolute; top:285px; background-color: #fcfcfd; height: 308px; z-index: 20}
@@ -260,3 +260,6 @@ overflow: hidden;
 .search .box{text-align: center; padding:30px;}
 .search input{ padding: 3px;}
 .search button{ margin-left: 5px; padding: 5px}
+header:hover, .player:hover, .player .fav:hover, nav a:hover, footer:hover{
+	transition: 0.3s all;
+}
