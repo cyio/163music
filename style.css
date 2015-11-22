@@ -1,8 +1,10 @@
-*{margin:0px;padding:0px;font-weight: normal; list-style: none; font-family: Microsoft Yahei,Arial}
+*{margin:0px;padding:0px;font-weight: normal; list-style: none; font-family: Microsoft Yahei,Arial;}
 a:focus{outline:none;}
 a{cursor:pointer; text-decoration: none; color: #666; display: block;}
-body{background: url(img/bg.png) repeat-x;background-size: 100%;}
-header{width: 310px; padding-bottom: 1px; border-bottom: 1px solid #D81817; height: 46px; margin: 8px 5px 0px 5px}
+body{background: #32394a;background-size: 100%;overflow-y: hidden;
+overflow-x: hidden;float: right;}
+header{width: 310px; padding-bottom: 1px; border-bottom: 1px solid #D81817; height: 46px; margin: 8px 5px 0px 5px;color:#f5f5f5;-webkit-filter: blur(10px)}
+header:hover{-webkit-filter: blur(0px);}
 header.up{border-bottom: 1px solid #fff; }
 header .face img{width:38px; height: 38px; border-radius: 36px;}
 header .face a:hover{}
@@ -12,10 +14,11 @@ header .cover{float: right;}
 header .face{margin-right: 6px; padding-top: 4px;}
 header .title h1{font-size: 14px;line-height: 26px;width: 200px;overflow: hidden;height: 26px;}
 header .title h2{font-size: 12px;}
-.player{ width: 320px; margin: 34px 0 10px 0;}
+.player{ width: 320px; margin: 34px 0 1px 0;-webkit-filter: blur(10px);}
+.player:hover{ -webkit-filter: blur(0px);}
 .player .cd .border{width: 194px; height: 194px;}
 .player .cd{position: relative; margin: 0 auto; width: 200px;}
-.player .cd img{width: 200px; height: 200px;border-radius: 200px; z-index: 1;margin: 1px 0 0 1px;-webkit-animation:play 12s linear 0s infinite ;}
+.player .cd img{width: 200px; height: 200px;border-radius: 200px; z-index: 1;margin: 1px 0 0 1px;}
 .player .cd .border{position: absolute;top: 0px;left: 0px;z-index: 2;border: 6px solid #fff;
 	border-radius: 200px;opacity: 0.9; box-shadow: 0px 1px 3px #999;}
 .player .cd .ctrl{width: 64px;height: 64px;position: absolute;background: url(img/cd.png) no-repeat;z-index: 10;top: 70px;left: 70px;}
@@ -30,10 +33,11 @@ header .title h2{font-size: 12px;}
 .player .prev{height: 28px; background-position: 0 -263px; top:114px; left: 12px; display: none;}
 .player .next{height: 28px; background-position: 0 -235px; top:114px; right: 12px;display: none;}
 .player i{position: absolute;top: 4px;right: 10px;font-size: 11px; font-style: normal; color: #999;}
-h5{height: 30px; padding: 2px 10px; width: 300px;overflow: hidden;}
-footer{background: url(img/bar.png); height: 21px; width: 320px; position: absolute; z-index: 5; top: 0; cursor: pointer;}
-footer:hover{ background-position: 0 -21px}
-.wrap{height: 306px; width: 320px;overflow: hidden; position: relative;}
+h5{height: 40px; padding: 2px 10px; width: 300px;overflow: hidden;}
+footer{background: #383E4D; height: 21px; width: 320px; position: absolute; z-index: 5; top: 0; cursor: pointer;}
+footer:hover{background: #7B7F8B;;}
+.wrap{height: 306px; width: 320px;overflow: hidden; position: relative;word-wrap: break-word;
+word-break: normal;}
 .body{display: block; width: 320px; position: absolute; top:285px; background-color: #fcfcfd; height: 308px; z-index: 20}
 nav{background: url(img/bar.png) 0 -42px; width: 320px; height: 40px; border-bottom: 1px solid #E60050}
 nav ul{padding-left: 10px;}
@@ -87,12 +91,14 @@ nav a:hover{-webkit-transform:rotate(180deg);}
 }
 .player .cd .pausing{-webkit-animation-play-state:paused ;}
 .info{position: absolute;top: 2px;text-align: left; padding-left: 4px; font-size: 11px; color: #999; display: none;width: 270px;}
-.lyric{text-align: center; line-height: 30px; cursor: pointer;}
+.lyric{text-align: center;background-color: #32394a;
+color: white;
+font-size: large;
+line-height: 40px; }
 .clearfix:after {content:".";display:block;height:0;clear:both;visibility:hidden;}
 
 
 .list .rank,.list .radio,.list .singer{display: none}
-.search{display: none}
 li.star p,li.star img{border-radius: 30px;}
 
 .login{z-index: 30;position: absolute;top: 70px;background-color: #fcfcfd;padding: 40px 30px; width: 300px; display: none;}
@@ -250,14 +256,6 @@ overflow: hidden;
 .sider{
 	cursor:pointer;
 }
-
 .search .box{text-align: center; padding:30px;}
 .search input{ padding: 3px;}
 .search button{ margin-left: 5px; padding: 5px}
-
-
-
-
-
-
-
