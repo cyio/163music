@@ -259,16 +259,23 @@ netease.bind = function(){
 
 	if(Settings.getValue("cycle",0)==1){
 		$(".cycle").addClass("cycle1");
+	} else if (Settings.getValue("cycle",0)==2) {
+		$(".cycle").addClass("random");
 	}
 	$(".cycle").bind("click",function(){
 		var cycle = $(this);
-		cycle.toggleClass("cycle1");
 		if(cycle.hasClass("cycle1")){
-			Settings.setValue("cycle",1);
-			cycle.attr("title","单曲循环");
-		}else{
+			cycle.removeClass('cycle1')
 			Settings.setValue("cycle",0);
-			cycle.attr("title","顺序播放");
+			cycle.attr("title","顺序循环");
+		}else if(cycle.hasClass("random")){
+			cycle.removeClass('random').addClass('cycle1');
+			Settings.setValue("cycle",1);
+			cycle.attr("title","单曲播放");
+		}else {
+			cycle.addClass('random');
+			Settings.setValue("cycle",2);
+			cycle.attr("title","随机播放");
 		}
 	});
 
@@ -826,7 +833,7 @@ netease.user = function(getMyList,justCheck){
 		}, function (c){
 			if(c!=null){
 				//已经登录
-				$(".login").fadeOut(); 
+				$(".login").fadeOut();
 				var userStr = "";
 				//获取用户信息
 				$.get("http://music.163.com/user/home",function(result){
@@ -837,13 +844,13 @@ netease.user = function(getMyList,justCheck){
 					userStr = userStr.replace("avatarUrl",'"avatarUrl"');
 					userStr = userStr.replace("userType",'"userType"');
 					userStr = userStr.replace("birthday",'"birthday"');
-					
+
 					var userInfo = $.parseJSON(userStr);
 					Settings.setObject("userInfo",userInfo);
 					netease.loaded.userInfo = userInfo;
 					if(getMyList)
 						netease.list("user",1,100);
-						
+
 					//获取通讯key
 					chrome.cookies.get({
 						url: netease.domain,
@@ -854,23 +861,23 @@ netease.user = function(getMyList,justCheck){
 							}
 							Settings.setValue("lckey",netease.lckey);
 					});
-					
+
 				});
 
-				
+
 			}else{
 				if(justCheck){
 					netease.loaded.userInfo = null;
 				}else{
-						
+
 					$(".login").fadeIn();
 					$(".login .close").unbind("click");
 					$(".login .close").bind("click",function(){
-						$(".login").fadeOut(); 
+						$(".login").fadeOut();
 					});
 				}
-				
-				
+
+
 			}
 
 		});
@@ -935,14 +942,14 @@ netease.fav = function(){
 			fav = "0";
 			netease.showtip("取消收藏成功");
 		}else{
-			$("#favBtn").addClass("faved");	
+			$("#favBtn").addClass("faved");
 			netease.showtip("收藏成功");
 	}
-	
+
 
 	var getListUrl = netease.domain+"/api/user/playlist/?offset=0&limit=301&uid="+netease.loaded.userInfo.userId;
 	getListUrl +="&csrf_token="+netease.lckey;
-	
+
 	$.getJSON(getListUrl,function(json){
 		if(json.code==200){
 
@@ -956,9 +963,9 @@ netease.fav = function(){
 			}
 
 			if(pid!=""){
-				
+
 				var favUrl = netease.domain+"/api/playlist/manipulate/tracks";
-				
+
 				var data = {pid:pid,op:op,trackIds:"["+song.id+"]",csrf_token:netease.lckey};
 				$.post(favUrl,data,function(result){
 					//console.log(result);
@@ -967,9 +974,9 @@ netease.fav = function(){
 			}
 		}
 	});
-	
-	
-	
+
+
+
 	var songs = Settings.getObject("songs");
 	for(var i=0;i<songs.length;i++){
 		songs[i].isfaved = fav;

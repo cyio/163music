@@ -282,7 +282,14 @@ $(function(){
 					player.playTo();
 				}
 			}
-		}else{
+		} else if(Settings.getValue("cycle",0)==2) {
+			if(player.type=="radio"||player.type=="singer"){
+				player.playRadio();
+			}else
+			{
+				player.playRandom();
+			}
+		} else{
 			if(player.type=="radio"||player.type=="singer"){
 				player.playRadio();
 			}else
@@ -300,8 +307,8 @@ $(function(){
 		if(player.index>=player.listCount){
 			player.index = 0;
 		}else{
-			
 			var song = player.songs[player.index];
+			//var song = player.songs[player.index];
 			Settings.setObject("song",song);
 			Settings.setValue("index",player.index);
 			port.send({act:"play"});//先显示歌手照片到CD
@@ -315,6 +322,29 @@ $(function(){
 			ntfy.show();
 		}
 		
+	};
+
+	player.playRandom = function(){
+		if(player.index<0){
+			player.index = 0;
+		}
+		if(player.index>=player.listCount){
+			player.index = 0;
+		}else{
+			var song = player.songs[Math.floor(Math.random()*player.index + 1)];
+			//var song = player.songs[player.index];
+			Settings.setObject("song",song);
+			Settings.setValue("index",player.index);
+			port.send({act:"play"});//先显示歌手照片到CD
+			//var songid = song.track.id||song.id;
+			audio.setAttribute("src",song.mp3Url);
+			audio.play();
+			port.send({act:"loaded"});
+		}
+		if(player.options().notify==1){
+			var ntfy = new notify();
+			ntfy.show();
+		}
 	};
 
 	player.playDj = function(){

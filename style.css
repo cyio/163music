@@ -24,7 +24,8 @@ header .title h2{font-size: 12px;}
 .player .cd .ctrl{width: 64px;height: 64px;position: absolute;background: url(img/cd.png) no-repeat;z-index: 10;top: 70px;left: 70px;}
 .player .cd .pause{background-position: 0 -64px;}
 .player .cd .play{background-position: 0 0;}
-.player .cycle{background-position: 0 -330px;width: 18px;height: 15px;top: 22px;right: 12px; }
+.player .cycle, .player .random{background-position: 0 -330px;width: 18px;height: 15px;top: 22px;right: 12px; }
+.player .random {background-position: -15px -175px;}    
 .player .cycle1{background-position: 0 -311px;}
 .player b{background: url(img/btn.png) no-repeat; width: 30px; height: 26px; display: block; float: right; cursor: pointer; position: absolute;}
 .player .share{background-position: 0 0; top:200px; left: 12px;  display: none;}
