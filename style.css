@@ -95,7 +95,9 @@ nav a:hover{-webkit-transform:rotate(180deg);}
 .lyric{text-align: center;background-color: #32394a;
 color: white;
 font-size: large;
-line-height: 40px; }
+line-height: 20px;
+overflow: auto; 
+margin-top: 5px;}
 .clearfix:after {content:".";display:block;height:0;clear:both;visibility:hidden;}
 
 
@@ -262,4 +264,11 @@ overflow: hidden;
 .search button{ margin-left: 5px; padding: 5px}
 header:hover, .player:hover, .player .fav:hover, nav a:hover, footer:hover{
 	transition: 0.3s all;
+}
+
+#btnNewWinPopup {
+	position: absolute;
+	bottom: 80px;
+	left: 10px;
+	float: none;
 }
