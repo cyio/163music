@@ -1,1 +1,45 @@
-$(function(){var e=Settings.getObject("options");if(e){$(".checkbox").removeAttr("checked");1==e.rank&&(document.getElementById("rank").checked=!0),1==e.radio&&(document.getElementById("radio").checked=!0),1==e.mine&&(document.getElementById("mine").checked=!0),1==e.lyric&&(document.getElementById("lyric").checked=!0),1==e.notify&&(document.getElementById("notify").checked=!0),"singer"==e.cover&&(document.getElementById("picsinger").checked=!0),"album"==e.cover&&(document.getElementById("picalbum").checked=!0)}$(".checkbox,.radio").bind("click",function(){var e={};e.rank=document.getElementById("rank").checked?1:0,e.radio=document.getElementById("radio").checked?1:0,e.mine=document.getElementById("mine").checked?1:0,e.lyric=document.getElementById("lyric").checked?1:0,e.notify=document.getElementById("notify").checked?1:0,e.cover=document.getElementById("picalbum").checked?"album":"singer",Settings.setObject("options",e)}),$(".menu a").bind("click",function(){$(".menu a").removeClass("hover"),$(this).addClass("hover"),$("dl").hide(),$("."+$(this).attr("id")).show()})});
+$(function(){
+	var options = Settings.getObject("options");
+	
+	if(options){
+		$(".checkbox").removeAttr("checked");
+		var ctrls = "";
+		if(options.rank==1)
+			document.getElementById("rank").checked = true;
+		if(options.radio==1)
+			document.getElementById("radio").checked = true;
+		if(options.mine==1)
+			document.getElementById("mine").checked = true;
+		if(options.lyric==1)
+			document.getElementById("lyric").checked = true;
+		if(options.notify==1)
+			document.getElementById("notify").checked = true;
+		if(options.cover=="singer")
+			document.getElementById("picsinger").checked = true;
+		if(options.cover=="album")
+			document.getElementById("picalbum").checked = true;
+
+	}
+	
+	$(".checkbox,.radio").bind("click",function(){
+		var op = {};
+		op.rank = (document.getElementById("rank").checked)?1:0;		
+		op.radio = (document.getElementById("radio").checked)?1:0;		
+		op.mine = (document.getElementById("mine").checked)?1:0;
+		op.lyric = (document.getElementById("lyric").checked)?1:0;
+		op.notify = (document.getElementById("notify").checked)?1:0;
+		if(document.getElementById("picalbum").checked)
+			op.cover = "album";
+		else
+			op.cover = "singer";
+		Settings.setObject("options",op);
+	});
+
+	$(".menu a").bind("click",function(){
+		$(".menu a").removeClass("hover");
+		$(this).addClass("hover");
+		$("dl").hide();
+		$("."+$(this).attr("id")).show();
+	});
+
+});

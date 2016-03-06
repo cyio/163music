@@ -1,1 +1,162 @@
-var backgroundConnector=function(){this.cache=null,this.name=null,this.onConnect=null,this.onDisConnect=null,this.send=function(n){if(null!=this.cache){var e=this.cache;e.name==this.name&&e.postMessage(n)}},this.init=function(n){var e=this;chrome.extension.onConnect.addListener(function(t){e.cache=t,t.name==e.name&&(t.onDisconnect.addListener(function(){e.cache=null,"function"==typeof e.onDisConnect&&e.onDisConnect(t)}),t.onMessage.addListener(function(e){n(e)}),"function"==typeof e.onConnect&&e.onConnect(t),t.postMessage({act:"connected"}))})}},mainConnector=function(){this.cache=null,this.name=null,this.init=function(){var n=chrome.extension.connect({name:this.name});this.cache=n},this.send=function(n){if(null!=this.cache){var e=this.cache;e.postMessage(n)}},this.onMessage=function(n){if(null!=this.cache){var e=this.cache;e.name==this.name&&e.onMessage.addListener(function(e){n(e)})}}},Settings={};Settings.configCache={},Settings.setValue=function(n,e){var t={};return localStorage.config&&(t=JSON.parse(localStorage.config)),t[n]=e,localStorage.config=JSON.stringify(t),e},Settings.getValue=function(n,e){if(!localStorage.config)return e;var t=JSON.parse(localStorage.config);return"undefined"==typeof t[n]?e:t[n]},Settings.setCacheValue=function(n,e){return Settings.configCache[n]=e,e},Settings.getCacheValue=function(n,e){return"undefined"!=typeof Settings.configCache[n]?Settings.configCache[n]:e},Settings.keyExists=function(n){if(!localStorage.config)return!1;var e=JSON.parse(localStorage.config);return void 0!=e[n]},Settings.setObject=function(n,e){return localStorage[n]=JSON.stringify(e),e},Settings.getObject=function(n){return void 0==localStorage[n]?void 0:JSON.parse(localStorage[n])},Settings.refreshCache=function(){Settings.configCache={}};var tool={};tool.formatTime=function(n){var e=Number(n),t=0,i=0;e>60&&(t=Number(e/60),e=Number(e%60),t>60&&(i=Number(t/60),t=Number(e%60)));var o=String(parseInt(e));1==o.length&&(o="0"+o);var c=o,a=String(parseInt(t));return 1==a.length&&(a="0"+a),c=a+":"+c,i>0&&(c=""+parseInt(i)+":"+c),c};
+var backgroundConnector = function(){
+	this.cache = null;//chrome extention connect object
+	this.name = null;//connect name
+	this.onConnect = null;//function
+	this.onDisConnect = null;//function
+	//发送消息
+	this.send = function(msg){
+		if(this.cache != null){
+			var port = this.cache;
+			if(port.name==this.name){
+				port.postMessage(msg);
+			}
+		}
+	};
+	//初始化
+	this.init = function(fn){
+		var This = this;
+		//console.log(this);
+		chrome.extension.onConnect.addListener(function(port){
+			This.cache = port;
+			if(port.name==This.name){
+				port.onDisconnect.addListener(function(){
+					This.cache = null;
+					if(typeof(This.onDisConnect)=="function")
+						This.onDisConnect(port);
+				});
+				port.onMessage.addListener(function(msg){
+					fn(msg)	;
+				});
+				if(typeof(This.onConnect)=="function")
+					This.onConnect(port);
+				port.postMessage({act:"connected"});
+			}
+			
+		});
+	};
+};
+
+var mainConnector = function(){
+	this.cache=null;//chrome extention connect object
+	this.name=null;//connect name
+	//初始化
+	this.init=function(){
+		var port = chrome.extension.connect({name:this.name});
+		this.cache = port;
+	};
+	//发送消息
+	this.send=function(msg){
+		if(this.cache != null){
+			var port = this.cache;
+			port.postMessage(msg);
+		}
+	};
+	//接收消息
+	this.onMessage=function(fn){
+		if(this.cache != null){
+			var port = this.cache;
+			if(port.name==this.name){
+				port.onMessage.addListener(function(msg){
+					fn(msg);
+				});
+			}
+		}
+	};
+};
+
+
+var Settings = {};//localstorage配置信息
+Settings.configCache = {};
+
+Settings.setValue = function setValue(key, value) {
+    var config = {};
+    if (localStorage.config)
+        config = JSON.parse(localStorage.config);
+
+    config[key] = value;
+    localStorage.config = JSON.stringify(config);
+    return value;
+};
+
+Settings.getValue = function getValue(key, defaultValue) {
+    if (!localStorage.config)
+        return defaultValue;
+
+    var config = JSON.parse(localStorage.config);
+    if (typeof config[key] == "undefined")
+        return defaultValue;
+
+    return config[key];
+};
+
+Settings.setCacheValue = function setValue(key, value) {
+    Settings.configCache[key] = value;
+    return value;
+};
+
+Settings.getCacheValue = function getValue(key, defaultValue) {
+    if (typeof Settings.configCache[key] != "undefined")
+        return Settings.configCache[key];
+    else
+    	return defaultValue;
+};
+
+Settings.keyExists = function keyExists(key) {
+    if (!localStorage.config)
+        return false;
+
+    var config = JSON.parse(localStorage.config);
+    return (config[key] != undefined);
+};
+
+Settings.setObject = function setObject(key, object) {
+    localStorage[key] = JSON.stringify(object);
+    return object;
+};
+
+Settings.getObject = function getObject(key) {
+	//console.log(key,"getObject");
+    if (localStorage[key] == undefined)
+        return undefined;
+
+    return JSON.parse(localStorage[key]);
+};
+
+Settings.refreshCache = function refreshCache() {
+    Settings.configCache = {};
+};
+
+
+
+var tool = {};
+tool.formatTime = function(value) {
+		var sec = Number(value);
+        var min = 0;
+        var hour = 0;
+        //alert(sec);
+        if(sec > 60) {
+        	min = Number(sec/60);
+        	sec = Number(sec%60);
+        	//alert(min+"-"+sec);
+        	if(min > 60) {
+        		hour = Number(min/60);
+        		min = Number(sec%60);
+        	}
+        }
+        var secTemp =  String( parseInt(sec));
+        if(secTemp.length==1)
+        	secTemp = "0"+secTemp;
+        
+        var result = secTemp;
+        var minTemp = String( parseInt(min));
+        if(minTemp.length==1)
+        	minTemp = "0"+minTemp;
+		result = minTemp+":"+result;
+
+        if(hour > 0) {
+        	result = ""+parseInt(hour)+":"+result;
+        }
+        return result;
+};
+
+

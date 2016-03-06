@@ -1,1 +1,540 @@
-$(function(){var e=Settings.getValue("ver");"2.0"!=e&&(Settings.setValue("ver","2.0"),chrome.tabs.create({url:"options.html"}));var t={},n=new backgroundConnector,i=null;t.list=null,t.listCount=0,t.listPage=1,t.songs=new Array,t.index=0,t.type=Settings.getValue("type","list"),t.error=0,t.fav="0",t.errorTime=new Date,t.options=function(){return Settings.getObject("options")||{list:1,radio:1,rank:1,mine:1,lyric:1,notify:1,cover:"album"}},t.init=function(){$("body").append("<audio id='player' autoplay></audio>"),i=document.getElementById("player"),i.volume=Settings.getValue("volume",1),i.addEventListener("error",function(){t.errorTime=new Date;var e=new Date-t.errorTime;e>6e4&&(t.error=0),t.error<100&&t.playNext(),t.error++}),i.addEventListener("timeupdate",function(){var e=Math.round(i.currentTime/i.duration*100),t={act:"timeupdate",time:i.currentTime,percent:e,duration:i.duration};n.send(t)}),i.addEventListener("ended",function(){t.playNext()}),t.listCount=parseInt(Settings.getValue("count","0")),t.index=parseInt(Settings.getValue("index","0")),t.listPage=parseInt(Settings.getValue("page","1"));var e=Settings.getObject("list");e&&(t.list=e);var s=Settings.getObject("songs");s&&(t.songs=s)},t.getAndPlay=function(e){switch(n.send({act:"loading"}),t.type){case"dj":t.getAndPlayDj();break;case"singer":t.getAndPlayRadio(!0);break;case"album":t.getAndPlayAlbum();break;default:t.getAndPlayList(e)}},t.getAndPlayList=function(e){t.index=0,e&&(t.index=e),t.listPage=1,Settings.setValue("page",t.listPage),Settings.setValue("type","list"),Settings.setObject("list",t.list);var n=t.list.id,i="http://music.163.com/api/playlist/detail?id="+n;i+="&csrf_token="+Settings.getValue("lckey",""),$.get(i,function(e){if(200==e.code){if(t.listCount=e.result.trackCount,Settings.setValue("count",t.listCount),t.songs=e.result.tracks,"1"==t.fav)for(var n=0;n<t.songs.length;n++)t.songs[n].isfaved="1";Settings.setObject("songs",t.songs),t.play()}})},t.getAndPlayAlbum=function(){t.index=0,t.listPage=1,Settings.setValue("page",t.listPage),Settings.setValue("type","album");var e=(new Date).getTime(),n={};n.id=t.list.id,n.coverurl=t.list.cover,n.name=t.list.name,t.list.artists.length>0&&(n.creator={nick_name:t.list.artists[0].name,portrait:t.list.artists[0].portrait}),Settings.setObject("list",n);var i=t.list.id,s=Settings.getValue("lckey",""),a="http://v5.pc.duomi.com/singer-ajaxsinger-albumsongs?id="+i+"&pi=1&pz=50&_="+e+"&lckey="+s;$.getJSON(a,function(e){if(0==e.dm_error){t.listCount=e.total,Settings.setValue("count",t.listCount);for(var n=new Array,i=0;i<e.tracks.length;i++)n.push({track:e.tracks[i],album:e.tracks[i].album});t.songs=n,Settings.setObject("songs",t.songs),t.play()}})},t.getAndPlayDj=function(e){t.index=0,e&&(t.index=e),t.listPage=1,Settings.setValue("page",t.listPage);var n=((new Date).getTime(),t.list.id),i="http://music.163.com/api/dj/program/detail?id="+n+"&ids=%5B"+n+"%5D";i+="&csrf_token="+Settings.getValue("lckey",""),$.getJSON(i,function(e){e.program&&e.program.songs&&e.program.songs.length>0&&(t.songs=e.program.songs,t.listCount=e.program.songs.length,Settings.setValue("count",t.listCount),Settings.setObject("songs",t.songs),e.program.songs=null,t.list=e.program,Settings.setObject("list",t.list),t.playDj())})},t.getAndPlayRadio=function(e){t.index=0,t.listPage=1,Settings.setValue("page",t.listPage);var n=((new Date).getTime(),t.list.id),i="http://search.pc.duomi.com/search?t=getrndlistsong&plid="+n+"&pi=50&mz",s={};s.id=t.list.id,s.creator={nick_name:"网易云音乐",portrait:"img/logo.png"},e?(i="http://v5.pc.duomi.com/singer-ajaxsinger-radio?id="+n,s.coverurl=t.list.portrait,s.name=t.list.name+"电台",Settings.setValue("type","singer")):(Settings.setValue("type","radio"),s.coverurl=t.list.treenode.url,s.name=t.list.treenode.name),Settings.setObject("list",s),$.getJSON(i,function(e){if(e.item){t.listCount=e.head.hit,Settings.setValue("count",t.listCount),t.songs=new Array;for(var n=0;n<e.item.length;n++){var i=e.item[n],s={};s.id=i.sid,s.name=i.sname,s.singer=i.sartist,s.pic=""!=i.alid?"http://imgv5.duomiyy.com/album/l"+i.alid+".jpg":"img/cover.png",t.songs.push(s)}Settings.setObject("songs",t.songs),t.playRadio()}})},t.playPrev=function(){t.pause(),t.index-=1,t.play()},t.playNext=function(){t.index+=1,t.play()},t.volumeUp=function(){var e=document.getElementById("player");e.volume+.1<=1?e.volume+=.1:e.volume=1,Settings.setValue("volume",e.volume.toFixed(2))},t.volumeDown=function(){var e=document.getElementById("player");e.volume-.1>0?e.volume-=.1:e.volume=0,Settings.setValue("volume",e.volume.toFixed(2))},t.pause=function(){i.pause()},t.replay=function(){i.currentTime>0?i.play():(i.src="",t.play())},t.play=function(){1==Settings.getValue("cycle",0)?i.currentTime>0?i.play():(i.src="","radio"==t.type||"singer"==t.type?t.playRadio():t.playTo()):2==Settings.getValue("cycle",0)?"radio"==t.type||"singer"==t.type?t.playRadio():t.playRandom():"radio"==t.type||"singer"==t.type?t.playRadio():t.playTo()},t.playTo=function(){if(t.index<0&&(t.index=0),t.index>=t.listCount)t.index=0;else{var e=t.songs[t.index];Settings.setObject("song",e),Settings.setValue("index",t.index),n.send({act:"play"}),i.setAttribute("src",e.mp3Url),i.play(),n.send({act:"loaded"})}if(1==t.options().notify){var s=new notify;s.show()}},t.playRandom=function(){if(t.index<0&&(t.index=0),t.index>=t.listCount)t.index=0;else{var e=t.songs[Math.floor(Math.random()*t.index+1)];Settings.setObject("song",e),Settings.setValue("index",t.index),n.send({act:"play"}),i.setAttribute("src",e.mp3Url),i.play(),n.send({act:"loaded"})}if(1==t.options().notify){var s=new notify;s.show()}},t.playDj=function(){if(t.index<0&&(t.index=0),t.index>=t.listCount)t.getAndPlayDj();else{var e=t.songs[t.index];Settings.setObject("song",e),Settings.setValue("index",t.index),n.send({act:"play"}),i.setAttribute("src",e.mp3Url),i.play(),n.send({act:"loaded"})}if(1==t.options().notify){var s=new notify;s.show()}},t.playRadio=function(){if(t.index<0&&(t.index=0),t.index>=t.listCount)t.getAndPlayRadio();else{var e=t.songs[t.index];Settings.setObject("song",e),Settings.setValue("index",t.index),n.send({act:"play"}),i.setAttribute("src",t.url(e.id)),i.load(),n.send({act:"loaded"})}if(1==t.options().notify){var s=new notify;s.show()}},t.url=function(e){return"http://www.duomi.com/third-getfile?id="+e},window.notify=function(){var e,t=!1,n=null;return{show:function(){if(window.webkitNotifications){var n=Settings.getObject("song"),i="",s=n.artists[0].name,a=n.name,o="";o="<"+n.album.name+"> ",i=n.album.picUrl+"?param=60y60";var r=o+a;e=webkitNotifications.createNotification(i,s,r),e.show(),t=!0,this.timer()}},hide:function(){e.cancel(),t=!1},timer:function(){n=setTimeout(function(){this.hide(),n=null}.bind(this),3e3)},clear:function(){clearTimeout(n),n=null},isVisible:function(){return t}}};var s={};s.init=function(){n.name="163music",n.onConnect=function(){},n.onDisConnect=function(){},n.init(function(e){switch(e.act){case"playlist":t.list=e.data,t.type="list",t.fav=e.fav,t.songs=new Array,t.getAndPlay(e.idx);break;case"playdj":t.list=e.data,t.songs=new Array,t.type="dj",t.getAndPlayDj(e.idx);break;case"playradio":t.list=e.data,t.songs=new Array,t.type="radio",t.getAndPlay();break;case"playalbum":t.list=e.data,t.type="album",t.songs=new Array,t.getAndPlay();break;case"playsinger":t.list=e.data,t.type="singer",t.songs=new Array,t.getAndPlay();break;case"pause":t.pause();break;case"play":t.replay();break;case"next":t.playNext();break;case"prev":t.playPrev();break;case"up":t.volumeUp();break;case"down":t.volumeDown()}}),t.init()},s.init()}),chrome.webRequest.onBeforeSendHeaders.addListener(function(e){if("xmlhttprequest"===e.type||"other"===e.type){for(var t=!1,n=0;n<e.requestHeaders.length;++n)if("Referer"===e.requestHeaders[n].name){t=!0,e.requestHeaders[n].value="http://music.163.com";break}return t||e.requestHeaders.push({name:"Referer",value:"http://music.163.com"}),{requestHeaders:e.requestHeaders}}},{urls:["http://music.163.com/api/*","http://*.music.126.net/*"]},["blocking","requestHeaders"]);
+$(function(){
+
+	var ver = Settings.getValue("ver"); 
+	if(ver!="2.0"){
+		Settings.setValue("ver","2.0");
+		chrome.tabs.create({url: "options.html"});
+	}
+
+	var player = {};
+	var port = new backgroundConnector();
+	var audio = null;
+	player.list = null;
+	player.listCount = 0;
+	player.listPage = 1;
+	player.songs = new Array();
+	player.index = 0;
+	player.type = Settings.getValue("type","list");
+	player.error = 0;
+	player.fav = "0";
+	player.errorTime = new Date();
+	
+	player.options = function(){
+		return Settings.getObject("options")||{list:1,radio:1,rank:1,mine:1,lyric:1,notify:1,cover:"album"};
+	}
+	
+	player.init = function(){
+		$("body").append("<audio id='player' autoplay></audio>");
+		audio = document.getElementById("player");
+		audio.volume = Settings.getValue("volume",1);
+		audio.addEventListener('error', function(evt) {
+			//console.log(audio,"error");
+			player.errorTime = new Date();
+			var span = new Date() - player.errorTime;
+			if(span>60000)
+				player.error = 0;
+			if(player.error<100){
+				player.playNext();
+			}
+			player.error ++;
+		});
+		audio.addEventListener('timeupdate', function(evt) {
+			var percentPlayed = Math.round(audio.currentTime / audio.duration * 100);
+			//var barWidth = Math.ceil(percentPlayed * (width / 100));
+			var msg = {act:"timeupdate",time:audio.currentTime,percent:percentPlayed,duration:audio.duration};
+			port.send(msg);
+		});
+		audio.addEventListener('ended', function(evt) {
+			//console.log(audio.currentTime+""+audio.duration,"ended");
+			player.playNext();
+		});
+
+		//从缓存中取得上次收听的数据
+		player.listCount = parseInt(Settings.getValue("count","0"));
+		player.index = parseInt(Settings.getValue("index","0"));
+		player.listPage = parseInt(Settings.getValue("page","1"));
+		var list = Settings.getObject("list");
+		if(list)
+			player.list = list;
+		var songs = Settings.getObject("songs");
+		if(songs){
+			player.songs = songs;
+		}	
+		
+
+	};
+
+	player.getAndPlay = function(playIndex){
+		port.send({act:"loading"});
+		switch(player.type){
+			case"dj":
+				player.getAndPlayDj();
+			break;
+			case"singer":
+				player.getAndPlayRadio(true);
+			break;
+			case"album":
+				player.getAndPlayAlbum();
+			break;
+			default:
+				player.getAndPlayList(playIndex);
+			break;
+		}
+	};
+
+	player.getAndPlayList = function(playIndex){
+		
+		player.index = 0;
+		if(playIndex)
+			player.index = playIndex;
+		player.listPage = 1;
+		
+		Settings.setValue("page",player.listPage);
+		Settings.setValue("type","list");
+		
+		Settings.setObject("list",player.list);
+		var id = player.list.id;
+		
+		var url = "http://music.163.com/api/playlist/detail?id="+id;
+		url +="&csrf_token="+Settings.getValue("lckey","");
+		$.get(url,function(data){
+			
+			if(data.code==200){
+				
+				player.listCount = data.result.trackCount;
+				Settings.setValue("count",player.listCount);
+				player.songs = data.result.tracks;
+				if(player.fav=="1"){
+					for(var a=0;a<player.songs.length;a++){
+						player.songs[a].isfaved = "1";
+					}
+				}
+
+				Settings.setObject("songs",player.songs);
+				player.play();
+			}
+		});
+	};
+
+
+	player.getAndPlayAlbum = function(){
+		
+		player.index = 0;
+		player.listPage = 1;
+		Settings.setValue("page",player.listPage);
+		Settings.setValue("type","album");
+		var r = new Date().getTime();
+
+		var newlist = {};
+		newlist.id = player.list.id;
+		newlist.coverurl = player.list.cover;
+		newlist.name = player.list.name;
+		if(player.list.artists.length>0){
+			newlist.creator =  {nick_name:player.list.artists[0].name,portrait:player.list.artists[0].portrait};
+		}
+		Settings.setObject("list",newlist);
+		var id = player.list.id;
+		var lckey = Settings.getValue("lckey","");
+		var url = "http://v5.pc.duomi.com/singer-ajaxsinger-albumsongs?id="+id+"&pi=1&pz=50&_="+r+"&lckey="+lckey;
+		$.getJSON(url,function(data){
+			if(data.dm_error==0){
+				player.listCount = data.total;
+				Settings.setValue("count",player.listCount);
+				var songs = new Array();
+				for(var i=0;i<data.tracks.length;i++){
+					songs.push({track:data.tracks[i],album:data.tracks[i].album});
+				}
+				
+				player.songs = songs;
+				
+				Settings.setObject("songs",player.songs);
+				player.play();
+			}
+		});
+	};
+
+	player.getAndPlayDj = function(playIndex){
+		player.index = 0;
+		if(playIndex)
+			player.index = playIndex;
+		player.listPage = 1;
+		Settings.setValue("page",player.listPage);
+		
+		var r = new Date().getTime();
+		var id = player.list.id;
+		var url = "http://music.163.com/api/dj/program/detail?id="+id+"&ids=%5B"+id+"%5D";
+		url +="&csrf_token="+Settings.getValue("lckey","");
+		$.getJSON(url,function(data){
+			//console.log(data);
+
+			if(data.program&&data.program.songs&&data.program.songs.length>0){
+				player.songs = data.program.songs;
+				player.listCount = data.program.songs.length;
+				Settings.setValue("count",player.listCount);
+				Settings.setObject("songs",player.songs);
+				data.program.songs = null;
+				player.list = data.program;
+				Settings.setObject("list",player.list);
+				player.playDj();
+			}
+		});
+	};
+
+	player.getAndPlayRadio = function(singerRadio){
+		player.index = 0;
+		player.listPage = 1;
+		Settings.setValue("page",player.listPage);
+		
+		var r = new Date().getTime();
+		var id = player.list.id;
+		//歌手电台http://v5.pc.duomi.com/singer-ajaxsinger-radio?id=50001233
+		var url = "http://search.pc.duomi.com/search?t=getrndlistsong&plid="+id+"&pi=50&mz";
+
+		var newlist = {};
+		newlist.id = player.list.id;
+		newlist.creator = {nick_name:"网易云音乐",portrait:"img/logo.png"};
+		if(singerRadio){
+			url = "http://v5.pc.duomi.com/singer-ajaxsinger-radio?id="+id;
+			newlist.coverurl = player.list.portrait;
+			newlist.name = player.list.name+"电台";
+			Settings.setValue("type","singer");
+		}else{
+			Settings.setValue("type","radio");
+			newlist.coverurl = player.list.treenode.url;
+			newlist.name = player.list.treenode.name;
+		}
+		Settings.setObject("list",newlist);
+			
+		$.getJSON(url,function(data){
+			if(data.item){
+				player.listCount = data.head.hit;
+				Settings.setValue("count",player.listCount);
+				player.songs = new Array();
+				for(var i=0;i<data.item.length;i++){
+					var song = data.item[i];
+					var newsong = {};
+					newsong.id = song.sid;
+					newsong.name = song.sname;
+					newsong.singer = song.sartist;
+					if(song.alid!=""){
+						newsong.pic = "http://imgv5.duomiyy.com/album/l"+song.alid+".jpg";
+					}else{
+						newsong.pic = "img/cover.png";
+					}
+					player.songs.push(newsong);
+				}
+				Settings.setObject("songs",player.songs);
+				player.playRadio();
+			}
+		});
+	};
+
+
+	player.playPrev = function(){
+		player.pause();
+		player.index-=1;
+		player.play();
+	};
+	player.playNext = function(){
+		player.index+=1;
+		player.play();
+	};
+	player.volumeUp = function(){
+		var audio = document.getElementById("player");
+		if((audio.volume + 0.1)<=1){
+			audio.volume += 0.1;
+		}else{
+			audio.volume = 1;
+		}
+		Settings.setValue("volume",audio.volume.toFixed(2));
+	},
+	player.volumeDown = function(){
+		var audio = document.getElementById("player");
+		if((audio.volume - 0.1)>0){
+			audio.volume -= 0.1;
+		}else{
+			audio.volume = 0;
+		}
+		Settings.setValue("volume",audio.volume.toFixed(2));
+	},
+	player.pause = function(){
+		audio.pause();
+	};
+	player.replay = function(){
+		if(audio.currentTime>0){
+			audio.play();
+		}else{
+			audio.src = "";
+			player.play();
+		}
+	};
+
+	player.play = function(){
+		if(Settings.getValue("cycle",0)==1){
+			if(audio.currentTime>0){
+				audio.play();
+			}else{
+				audio.src = "";
+				if(player.type=="radio"||player.type=="singer"){
+					player.playRadio();
+				}else
+				{
+					player.playTo();
+				}
+			}
+		} else if(Settings.getValue("cycle",0)==2) {
+			if(player.type=="radio"||player.type=="singer"){
+				player.playRadio();
+			}else
+			{
+				player.playRandom();
+			}
+		} else{
+			if(player.type=="radio"||player.type=="singer"){
+				player.playRadio();
+			}else
+			{
+				player.playTo();
+			}
+		}
+		
+	};
+
+	player.playTo = function(){
+		if(player.index<0){
+			player.index = 0;
+		}
+		if(player.index>=player.listCount){
+			player.index = 0;
+		}else{
+			var song = player.songs[player.index];
+			//var song = player.songs[player.index];
+			Settings.setObject("song",song);
+			Settings.setValue("index",player.index);
+			port.send({act:"play"});//先显示歌手照片到CD
+			//var songid = song.track.id||song.id;
+			audio.setAttribute("src",song.mp3Url);
+			audio.play();
+			port.send({act:"loaded"});
+		}
+		if(player.options().notify==1){
+			var ntfy = new notify();
+			ntfy.show();
+		}
+		
+	};
+
+	player.playRandom = function(){
+		if(player.index<0){
+			player.index = 0;
+		}
+		if(player.index>=player.listCount){
+			player.index = 0;
+		}else{
+			var song = player.songs[Math.floor(Math.random()*player.index + 1)];
+			//var song = player.songs[player.index];
+			Settings.setObject("song",song);
+			Settings.setValue("index",player.index);
+			port.send({act:"play"});//先显示歌手照片到CD
+			//var songid = song.track.id||song.id;
+			audio.setAttribute("src",song.mp3Url);
+			audio.play();
+			port.send({act:"loaded"});
+		}
+		if(player.options().notify==1){
+			var ntfy = new notify();
+			ntfy.show();
+		}
+	};
+
+	player.playDj = function(){
+		//console.log(player.listCount,"playradio");
+		if(player.index<0){
+			player.index = 0;
+		}
+		if(player.index>=player.listCount){
+			player.getAndPlayDj();
+		}else{
+			var song = player.songs[player.index];
+			Settings.setObject("song",song);
+			Settings.setValue("index",player.index);
+			port.send({act:"play"});
+			audio.setAttribute("src",song.mp3Url);
+			audio.play();
+			port.send({act:"loaded"});
+		}
+		if(player.options().notify==1){
+			var ntfy = new notify();
+			ntfy.show();
+		}
+	};
+
+	player.playRadio = function(){
+		//console.log(player.listCount,"playradio");
+		if(player.index<0){
+			player.index = 0;
+		}
+		if(player.index>=player.listCount){
+			player.getAndPlayRadio();
+		}else{
+			var song = player.songs[player.index];
+			Settings.setObject("song",song);
+			Settings.setValue("index",player.index);
+			port.send({act:"play"});//先显示歌手照片到CD
+			audio.setAttribute("src",player.url(song.id));
+			audio.load();
+			port.send({act:"loaded"});
+		}
+		if(player.options().notify==1){
+			var ntfy = new notify();
+			ntfy.show();
+		}
+	};
+
+
+	player.url = function(id){
+		return "http://www.duomi.com/third-getfile?id="+id;
+	};
+
+	
+	window.notify = function () {
+        var notify, visible = false, timer = null, self = this;
+        return {
+            show: function () {
+				if(window.webkitNotifications){
+					//notify = webkitNotifications.createHTMLNotification('../notify.html');
+					var song = Settings.getObject("song");
+					var icon = ""; 
+					var title = song.artists[0].name;
+					var name = song.name;
+					var album = "";
+					album = "<"+song.album.name+"> ";
+					icon = song.album.picUrl+"?param=60y60";
+					
+					var body = album + name;
+					notify = webkitNotifications.createNotification(icon, title, body);
+					notify.show();
+					visible = true;
+					this.timer();
+				}
+            },
+            hide: function () {
+                notify.cancel();
+                visible = false;
+            },
+            timer: function () {
+                timer = setTimeout(function () {
+                    this.hide();
+                    timer = null;
+                }.bind(this), 3000);
+            },
+            clear: function () {
+                clearTimeout(timer);
+                timer = null;
+            },
+            isVisible: function () {
+                return visible;
+            }
+        }
+    }
+
+	var background = {};
+	background.init = function(){
+		port.name = "163music";
+		port.onConnect = function(p){
+			//console.log(p,"cnnt");
+		};
+		port.onDisConnect = function(p){
+			//console.log(p,"disc");
+		};
+
+		port.init(function(msg){
+			//console.log(msg,'message');
+			switch(msg.act){
+				case "playlist":
+					player.list = msg.data;
+					player.type = "list";
+					player.fav = msg.fav;
+					player.songs = new Array();
+					player.getAndPlay(msg.idx);
+				break;
+				case "playdj":
+					player.list = msg.data;
+					player.songs = new Array();
+					player.type = "dj";
+					player.getAndPlayDj(msg.idx);
+				break;
+				case "playradio":
+					player.list = msg.data;
+					player.songs = new Array();
+					player.type = "radio";
+					player.getAndPlay();
+				break;
+				case "playalbum":
+					player.list = msg.data;
+					player.type = "album";
+					player.songs = new Array();
+					player.getAndPlay();
+				break;
+				case "playsinger":
+					player.list = msg.data;
+					player.type = "singer";
+					player.songs = new Array();
+					player.getAndPlay();
+				break;
+				case "pause":
+					player.pause();
+				break;
+				case "play":
+					player.replay();//先检查是否继续播放
+				break;
+				case "next":
+					player.playNext();
+				break;
+				case "prev":
+					player.playPrev();
+				break;
+				case "up":
+					player.volumeUp();
+				break;
+				case "down":
+					player.volumeDown();
+				break;
+				
+			}
+		});
+
+		player.init();
+	};
+
+
+//调用
+background.init();
+//window.player = player;
+
+
+});
+
+
+chrome.webRequest.onBeforeSendHeaders.addListener(
+    function(details) {
+        if (details.type === 'xmlhttprequest'||details.type === 'other') {
+            var exists = false;
+            for (var i = 0; i < details.requestHeaders.length; ++i) {
+                if (details.requestHeaders[i].name === 'Referer') {
+                    exists = true;
+                    details.requestHeaders[i].value = 'http://music.163.com';
+                    break;
+                }
+            }
+
+            if (!exists) {
+             details.requestHeaders.push({ name: 'Referer', value: 'http://music.163.com'});
+            }
+
+            return { requestHeaders: details.requestHeaders };
+        }
+    },
+    {urls: ['http://music.163.com/api/*','http://*.music.126.net/*']},
+    ["blocking", "requestHeaders"]
+);
