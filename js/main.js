@@ -180,8 +180,16 @@ netease.bind = function(){
 			break;
 		}
 	});
+	
+	// 按下回车键时，让指定元素获取焦点，以供浏览器处理
+	document.onkeydown = function(e) {
+	    if ((e.keyCode || e.which) == 13) {
+	        var focusinput = document.querySelectorAll("input[type='submit']")[0];
+	        focusinput.focus();
+	    }
+	}
 
-	$(".search button").bind("click",function(){
+	$(".search input[type='submit']").bind("click",function(){
 		var key = $("#keyword").val();
 		if(key!="")
 			netease.list("search",0,100,false,key);
