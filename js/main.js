@@ -916,6 +916,7 @@ netease.user = function(getMyList,justCheck){
 					userStr = userStr.replace("avatarUrl",'"avatarUrl"');
 					userStr = userStr.replace("userType",'"userType"');
 					userStr = userStr.replace("birthday",'"birthday"');
+					userStr = userStr.replace("djStatus",'"djStatus"');
 
 					var userInfo = $.parseJSON(userStr);
 					Settings.setObject("userInfo",userInfo);
