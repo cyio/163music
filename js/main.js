@@ -189,6 +189,9 @@ netease.bind = function(){
 	    }
 	}
 
+	// bug
+  setTimeout(function(){$(".body").css({"display":"block"});},200);
+
 	$(".search input[type='submit']").bind("click",function(){
 		var key = $("#keyword").val();
 		if(key!="")
@@ -408,7 +411,7 @@ netease.bind = function(){
 	    if (windowId) {
 	      url += '&windowId=' + windowId;
 	    }
-	    getBackgroundView().new_win_popup.window = window.open(url, '163music', 'width=320,height=362' );
+	    getBackgroundView().new_win_popup.window = window.open(url, '163music', 'width=320,height=382' );
 	  });
 	}
 	

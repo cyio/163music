@@ -12,7 +12,7 @@
     "browser_action": {
         "default_title": "网易云音乐",
         "default_icon": "img/logo.png",
-		"default_popup": "popup.html" 
+        "default_popup": "popup.html" 
     },
 
     "background": {

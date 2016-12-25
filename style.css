@@ -39,7 +39,7 @@ footer{background: #383E4D; height: 21px; width: 320px; position: absolute; z-in
 footer:hover{background: #7B7F8B;}
 .wrap{height: 306px; width: 320px;overflow: hidden; position: relative;word-wrap: break-word;
 word-break: normal;}
-.body{display: block; width: 320px; position: absolute; top:285px; background-color: #fcfcfd; height: 308px; z-index: 20}
+.body{display: none; width: 320px; position: absolute; top:285px; background-color: #fcfcfd; height: 308px; z-index: 20}
 nav{background: url(img/bar.png) 0 -42px; width: 320px; height: 40px; border-bottom: 1px solid #E60050}
 nav ul{padding-left: 10px;}
 nav ul li{float: left;  font-size: 12px; padding: 9px 0px; margin: 4px 10px 0px 10px; cursor: pointer;}
